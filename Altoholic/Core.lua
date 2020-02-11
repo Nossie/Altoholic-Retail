@@ -283,7 +283,15 @@ local GuildCommCallbacks = {
 	[MSG_VERSION_REPLY] = OnVersionReply,
 }
 
+local tabList = {}
+local frameToID = {}
+
 function addon:OnInitialize()
+    tabList = addon:GetTabList()
+    for index, name in ipairs(tabList) do
+	   frameToID[name] = index
+    end
+    
 	addon.db = LibStub("AceDB-3.0"):New(addonName .. "DB", AddonDB_Defaults)
 	LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, options)
 
@@ -353,20 +361,6 @@ addon.TradeSkills = {
 }
 
 -- ** Tabs **
-local tabList = {
-	"Summary",
-	"Characters",
-	"Search",
-	"Guild",
-	"Achievements",
-	"Agenda",
-	"Grids",
-}
-
-local frameToID = {}
-for index, name in ipairs(tabList) do
-	frameToID[name] = index
-end
 
 local function SafeLoadAddOn(name)
 	if not IsAddOnLoaded(name) then
@@ -405,13 +399,12 @@ function addon.Tabs:OnClick(index)
 	self:HideAll()
 	self.current = index
 	
-	if index >= 1 and index <= 7 then
+	if index >= 1 and index <= addon:GetNumTotalTabs() then
 		local moduleName = format("%s_%s", addonName, tabList[index])
 		SafeLoadAddOn(moduleName)		-- make this part a bit more generic once we'll have more LoD parts
 		
 		local parentLevel = AltoholicFrame:GetFrameLevel()
 		local childName = format("%sTab%s", addonName, tabList[index])
-
 		local tabFrame = _G[ childName ]
 		
 		if tabFrame then
@@ -421,7 +414,8 @@ function addon.Tabs:OnClick(index)
 				tabFrame:SetFrameLevel(parentLevel+1)
 			end
 		else
-			addon:Print(format("%s is disabled.", moduleName))
+			-- Now that tabs are added dynamically, the code should never get here anymore
+            addon:Print(format("%s is disabled.", moduleName))
 		end
 	end
 	

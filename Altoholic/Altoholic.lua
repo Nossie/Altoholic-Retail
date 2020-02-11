@@ -21,11 +21,6 @@ local function InitLocalization()
 		L["Enter an account name that will be\nused for |cFF00FF00display|r purposes only."],
 		L["This name can be anything you like,\nit does |cFF00FF00NOT|r have to be the real account name."],
 		L["This field |cFF00FF00cannot|r be left empty."])
-
-	AltoholicFrameTab1:SetText(L["Summary"])
-	AltoholicFrameTab2:SetText(L["Characters"])
-	AltoholicFrameTab6:SetText(L["Agenda"])
-	AltoholicFrameTab7:SetText(L["Grids"])
 	
 	AltoAccountSharingName:SetText(L["Account Name"])
 	AltoAccountSharingText1:SetText(L["Send account sharing request to:"])
