@@ -163,9 +163,15 @@ local function ScanAuctions()
 	
 	_ClearAuctionEntries(character, "Auctions", AHZone)
 	
-	for i = 1, C_AuctionHouse.GetNumReplicateItems("owner") do
-		local itemName, _, count, _, _, _, _, startPrice, 
-			_, buyoutPrice, _, highBidder, _, _, _, saleStatus, itemID =  C_AuctionHouse.GetReplicateItemInfo("owner", i)
+	for i = 1, C_AuctionHouse.GetNumOwnedAuctions() do
+        local ownedAuction = C_AuctionHouse.GetOwnedAuctionInfo(i)
+		local itemName = ownedAuction.itemLink
+        local count = ownedAuction.quantity
+        local startPrice = ownedAuction.bidAmount 
+		local buyoutPrice = ownedAuction.buyoutAmount
+        local highBidder = ownedAuction.bidder
+        local saleStatus = ownedAuction.status 
+        local itemID = ownedAuction.itemKey.itemID  
 			
 		-- do not list sold items, they're supposed to be in the mailbox
 		if saleStatus and saleStatus == 1 then		-- just to be sure, in case Bliz ever returns nil
@@ -175,11 +181,11 @@ local function ScanAuctions()
 		end
 			
 		if itemName and itemID and not saleStatus then
-			local link = C_AuctionHouse.GetReplicateItemLink("owner", i)
-			local timeLeft = C_AuctionHouse.GetReplicateItemTimeLeft("owner", i)
+			local link = ownedAuction.itemLink
+			local timeLeft = ownedAuction.timeLeft
 			
 			table.insert(character.Auctions, format("%s|%s|%s|%s|%s|%s|%s", 
-				AHZone, itemID, count, highBidder or "", startPrice, buyoutPrice, timeLeft))
+				AHZone, itemID, count, highBidder or "", startPrice or "", buyoutPrice, timeLeft or ""))
 		end
 	end
 	
