@@ -120,6 +120,11 @@ local support = {
 
 -- this content will be subject to frequent changes, do not bother translating it !!
 local whatsnew = {
+    { name = "8.3.003 Changes",
+        bulletedList = {
+            "Updated Altoholic_Grids to allow for scrolling along more than 12 characters using arrow button at the bottom.",
+        },
+    },
     { name = "8.3.001 Changes",
         bulletedList = {   
             "Added new factions.",
