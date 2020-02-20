@@ -145,18 +145,17 @@ function addon:OnDisable()
 	addon:UnregisterEvent("AUCTION_HOUSE_SHOW")
 end
 
--- *** Scanning functions ***
-local function ScanAuctions()
-	local AHZone = 0		-- 0 means faction AH
-	-- local zoneFaction = GetZonePVPInfo()	-- "friendly", "sanctuary", "contested" (PvP server) or nil (PvE server)
-	-- if ( zoneFaction ~= "friendly" ) and ( zoneFaction ~= "sanctuary" ) then
-		-- AHZone = 1			-- 1 means goblin AH
-	-- end
-	
+local function getAHZone()
 	local zoneID = C_Map.GetBestMapForUnit("player")
 	if zoneID == 161 or zoneID == 281 or zoneID == 673 then
- 		AHZone = 1			-- 1 means goblin AH
+ 		return 1			-- 1 means goblin AH
  	end
+    return 0
+end
+
+-- *** Scanning functions ***
+local function ScanAuctions()
+	local AHZone = getAHZone()
 	
 	local character = addon.ThisCharacter
 	character.lastUpdate = time()
@@ -181,7 +180,6 @@ local function ScanAuctions()
 		end
 			
 		if itemName and itemID and not saleStatus then
-			local link = ownedAuction.itemLink
 			local timeLeft = ownedAuction.timeLeft
 			
 			table.insert(character.Auctions, format("%s|%s|%s|%s|%s|%s|%s", 
@@ -190,6 +188,46 @@ local function ScanAuctions()
 	end
 	
 	addon:SendMessage("DATASTORE_AUCTIONS_UPDATED")
+end
+
+-- UPDATE 8.3.003:
+-- Since addons can't seem to be able to scan the AH after selling an item, instead I will try to get the information about an item being sold directly
+
+-- Hook the game UI's PostItem and PostCommodity functions, grabbing their parameter information
+local originalPostItem = C_AuctionHouse.PostItem
+local originalPostCommodity = C_AuctionHouse.PostCommodity
+
+-- bid and buyout are optional parameters
+C_AuctionHouse.PostItem = function(item, duration, quantity, bid, buyout)
+    -- item is an ItemLocationMixin from Blizzard's ItemLocation.lua
+    local bagID, slotIndex = item:GetBagAndSlot()
+    local itemID = GetContainerItemID(bagID, slotIndex)
+    local AHZone = getAHZone()
+    
+    local character = addon.ThisCharacter
+	character.lastUpdate = time()
+    
+    table.insert(character.Auctions, format("%s|%s|%s|%s|%s|%s|%s", 
+				AHZone, itemID, quantity, "", bid or "", buyout or "", duration or ""))
+                
+    -- Call the original Blizzard function
+    originalPostItem(item, duration, quantity, bid, buyout)
+end
+
+C_AuctionHouse.PostCommodity = function(item, duration, quantity, unitPrice)
+    -- item is an ItemLocationMixin from Blizzard's ItemLocation.lua
+    local bagID, slotIndex = item:GetBagAndSlot()
+    local itemID = GetContainerItemID(bagID, slotIndex)
+    local AHZone = getAHZone()
+    
+    local character = addon.ThisCharacter
+	character.lastUpdate = time()
+    
+    table.insert(character.Auctions, format("%s|%s|%s|%s|%s|%s|%s", 
+				AHZone, itemID, quantity, "", "", unitPrice or "", duration or ""))
+                
+    -- Call the original Blizzard function
+    originalPostCommodity(item, duration, quantity, unitPrice)
 end
 
 local function ScanBids()
