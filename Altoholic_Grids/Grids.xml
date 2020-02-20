@@ -28,10 +28,6 @@
 						local parent = self:GetParent():GetParent()
 						self:OnVerticalScroll(offset, 41, parent.Update, parent)
 					</OnVerticalScroll>
-                    <OnHorizontalScroll>
-                        local parent = self:GetParent():GetParent()
-						self:OnHorizontalScroll(offset, 41, parent.Update, parent) 
-                    </OnHorizontalScroll>
 				</Scripts>
 				<KeyValues>
 					<KeyValue key="numRows" value="8" type="number" />

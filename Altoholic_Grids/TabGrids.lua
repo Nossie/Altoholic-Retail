@@ -5,7 +5,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 local CHARS_PER_FRAME = 12
 local current_start_col = 1
-local char_buttons = {}
 local gridCallbacks = {}
 local start_char_index = 1
 
